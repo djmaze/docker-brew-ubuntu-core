@@ -30,14 +30,14 @@ if [ "$commitCount" ] && [ "$commitCount" -gt 0 ]; then
 	git log --format=format:'- %h %s%n%w(0,2,2)%b' "$commitRange" | sed 's/^/#  /'
 fi
 
-arch="$(dpkg --print-architecture)"
+source _ubuntu_arch.sh
 for version in "${versions[@]}"; do
 	commit="$(git log -1 --format='format:%H' -- "$version")"
 	serial="$(awk -F '=' '$1 == "SERIAL" { print $2 }' "$version/build-info.txt")"
 	
 	versionAliases=()
 	if [ -z "${noVersion[$version]}" ]; then
-		tarball="$version/ubuntu-$version-core-cloudimg-$arch-root.tar.gz"
+		tarball="$version/ubuntu-$version-core-cloudimg-${UBUNTU_ARCH}-root.tar.gz"
 		fullVersion="$(tar -xvf "$tarball" etc/debian_version --to-stdout 2>/dev/null)"
 		if [ -z "$fullVersion" ] || [[ "$fullVersion" == */sid ]]; then
 			fullVersion="$(eval "$(tar -xvf "$tarball" etc/os-release --to-stdout 2>/dev/null)" && echo "$VERSION" | cut -d' ' -f1)"
